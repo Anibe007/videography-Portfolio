@@ -1,55 +1,118 @@
-// MENU
-const hamburger=document.querySelector(".hamburger");
-const nav=document.querySelector(".nav-links");
+// ===============================
+// HAMBURGER MENU TOGGLE
+// ===============================
 
-hamburger.onclick=()=>nav.classList.toggle("active");
+const hamburger = document.querySelector(".hamburger");
+const navLinks = document.querySelector(".nav-links");
 
-// TYPING
-const words=["cinematic moments","powerful stories","visual experiences"];
-let i=0,j=0,isDeleting=false;
+hamburger.addEventListener("click", () => {
+    navLinks.classList.toggle("active");
 
-function type(){
-let word=words[i];
-j=isDeleting?j-1:j+1;
+    // Toggle icon (bars ↔ X)
+    const icon = hamburger.querySelector("i");
 
-document.getElementById("typing").textContent=word.substring(0,j);
-
-if(!isDeleting && j===word.length){
-isDeleting=true;setTimeout(type,1000);return;
-}
-if(isDeleting && j===0){
-isDeleting=false;i=(i+1)%words.length;
-}
-
-setTimeout(type,120);
-}
-type();
-
-// VIDEO HOVER + MODAL
-document.querySelectorAll(".video-card").forEach(card=>{
-const video=card.querySelector("video");
-
-card.onmouseenter=()=>video.play();
-card.onmouseleave=()=>{video.pause();video.currentTime=0;}
-
-card.onclick=()=>{
-document.querySelector(".video-modal").style.display="flex";
-document.getElementById("modalVideo").src=video.querySelector("source").src;
-document.getElementById("modalVideo").play();
-}
+    if (navLinks.classList.contains("active")) {
+        icon.classList.remove("fa-bars");
+        icon.classList.add("fa-times");
+    } else {
+        icon.classList.remove("fa-times");
+        icon.classList.add("fa-bars");
+    }
 });
 
-document.querySelector(".video-modal").onclick=()=>{
-document.querySelector(".video-modal").style.display="none";
-document.getElementById("modalVideo").pause();
-};
+// Close menu when clicking a link (mobile UX improvement)
+document.querySelectorAll(".nav-links a").forEach(link => {
+    link.addEventListener("click", () => {
+        navLinks.classList.remove("active");
 
-// LIGHTBOX
-const lightbox=document.querySelector(".lightbox");
-document.querySelectorAll(".lightbox-img").forEach(img=>{
-img.onclick=()=>{
-lightbox.style.display="flex";
-lightbox.innerHTML=`<img src="${img.src}">`;
-}
+        const icon = hamburger.querySelector("i");
+        icon.classList.remove("fa-times");
+        icon.classList.add("fa-bars");
+    });
 });
-lightbox.onclick=()=>lightbox.style.display="none";
+
+
+// ===============================
+// TYPING EFFECT (CINEMATIC TEXT)
+// ===============================
+
+const typingText = [
+    "cinematic stories",
+    "visual emotions",
+    "memories that last",
+    "real experiences"
+];
+
+let index = 0;
+let charIndex = 0;
+let currentText = "";
+let isDeleting = false;
+
+function typeEffect() {
+    const target = document.getElementById("typing");
+
+    if (!target) return;
+
+    currentText = typingText[index];
+
+    if (isDeleting) {
+        target.textContent = currentText.substring(0, charIndex--);
+    } else {
+        target.textContent = currentText.substring(0, charIndex++);
+    }
+
+    if (!isDeleting && charIndex === currentText.length) {
+        isDeleting = true;
+        setTimeout(typeEffect, 1200);
+        return;
+    }
+
+    if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        index = (index + 1) % typingText.length;
+    }
+
+    setTimeout(typeEffect, isDeleting ? 60 : 100);
+}
+
+typeEffect();
+
+
+// ===============================
+// SCROLL REVEAL ANIMATION
+// ===============================
+
+const revealElements = document.querySelectorAll(
+    ".projects, .skills, .services, .about, .contact"
+);
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add("reveal");
+        }
+    });
+}, {
+    threshold: 0.15
+});
+
+revealElements.forEach(el => observer.observe(el));
+
+
+// ===============================
+// SMOOTH SCROLL FIX (optional enhancement)
+// ===============================
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        const target = document.querySelector(this.getAttribute("href"));
+
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    });
+});
